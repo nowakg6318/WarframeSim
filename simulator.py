@@ -2,11 +2,6 @@
  against a specific target using a specific loadout.
 
  Things to do:
- * FIX!!!!!!
-
- * Be able to take more than just rifles
-
- * Possibly make this process into a matrix calculation
 '''
 
 # Imports
@@ -61,9 +56,9 @@ def non_damage_mod_calc(loadout: mods.loadout) -> None:
 
     relevant_mod_list = get_relevant_mod_list(loadout, 0)
     loadout_array = copy.deepcopy(loadout.weapon.weapon_array)
-    mod_array = numpy.ones(20)
+    mod_array = numpy.zeros(20)
     for mod in relevant_mod_list:
-        mod_array = numpy.add(mod_array, mod.get_modarray())
+        mod_array = numpy.add(mod_array, mod.get_modarray() - 1)
     loadout_array[13:] = numpy.multiply(
         loadout_array[13:], mod_array[13:])
 
@@ -76,9 +71,9 @@ def base_damage_mod_calc(loadout: mods.loadout) -> None:
 
     relevant_mod_list = get_relevant_mod_list(loadout, 1)
     loadout_array = loadout.loadout_array
-    mod_array = numpy.ones(20)
+    mod_array = numpy.zeros(20)
     for mod in relevant_mod_list:
-        mod_array = numpy.add(mod_array, mod.get_modarray())
+        mod_array = numpy.add(mod_array, mod.get_modarray() - 1)
     loadout_array[:3] = (numpy.multiply(
         loadout_array[:3], mod_array[:3]))
 
@@ -97,7 +92,7 @@ def first_elemental_mod_calc(loadout: mods.loadout) -> None:
                                   + loadout_array[1]
                                   + loadout_array[2])
 
-        non_zero_element = numpy.nonzero(mod_array[:13])[0]
+        non_zero_element = numpy.nonzero(mod_array[:13] - 1)[0]
         loadout_array[non_zero_element] = (
             mod_array[non_zero_element] * sum_of_physical_damage
             + loadout_array[non_zero_element])
@@ -130,7 +125,7 @@ def second_elemental_mod_calc(loadout: mods.loadout) -> None:
     mod_element_index_list = []
     for mod in relevant_mod_list:
         mod_array = mod.mod_array
-        mod_element_index = numpy.nonzero(mod_array[3:7])[0]
+        mod_element_index = numpy.nonzero(mod_array[3:7] - 1)[0]
         if mod_element_index not in mod_element_index_list:
             mod_element_index_list.append(mod_element_index)
         else:
@@ -141,10 +136,10 @@ def second_elemental_mod_calc(loadout: mods.loadout) -> None:
     number_even_pairs_elements = math.floor(len(relevant_mod_list) / 2)
     for index in range(number_even_pairs_elements):
         first_mod_array = relevant_mod_list[2 * index].get_modarray()
-        first_mod_element_index = numpy.nonzero(first_mod_array[3:7])[0]
+        first_mod_element_index = numpy.nonzero(first_mod_array[3:7] - 1)[0]
 
         second_mod_array = relevant_mod_list[2 * index + 1].get_modarray()
-        second_mod_element_index = numpy.nonzero(second_mod_array[3:7])[0]
+        second_mod_element_index = numpy.nonzero(second_mod_array[3:7] - 1)[0]
 
         key = (first_mod_element_index[0], second_mod_element_index[0])
         if key not in elemental_dict.keys():
@@ -163,10 +158,11 @@ def physical_damage_mod_calc(loadout: mods.loadout) -> None:
 
     relevant_mod_list = get_relevant_mod_list(loadout, 4)
     loadout_array = loadout.loadout_array
-    mod_array = numpy.ones(20)
     for mod in relevant_mod_list:
-        mod_array = numpy.add(mod_array, mod.get_modarray())
-    loadout_array[:3] = numpy.multiply(loadout_array[:3], mod_array[:3])
+        mod_array = mod.get_modarray()
+        loadout_array[:3] = numpy.multiply(
+            loadout_array[:3], mod_array[:3])
+
     loadout.loadout_array = loadout_array
 
 
@@ -181,13 +177,20 @@ def critical_damage_mod_calc(loadout: mods.loadout) -> None:
     # Imports
     import math
 
-    real_critical_chance = (loadout.critical_chance
-                            - math.floor(loadout.critical_chance))
+    import copy
+    real_critical_chance = (loadout.loadout_array[15]
+                            - math.floor(loadout.loadout_array[15]))
 
     loadout.loadout_array[15] = real_critical_chance
+    loadout.loadout_crit_array = copy.deepcopy(loadout.loadout_array)
     loadout.loadout_array[:13] = (loadout.loadout_array[:13]
-                                  * loadout.critical_multipler
+                                  * loadout.loadout_array[16]
                                   ** math.floor(real_critical_chance))
+
+    loadout.loadout_crit_array[:13] = (loadout.loadout_array[:13]
+                                       * loadout.loadout_array[16]
+                                       ** math.ceil(
+                                       real_critical_chance))
 
 
 def faction_damage_mod_calc(loadout: mods.loadout,
@@ -196,12 +199,14 @@ def faction_damage_mod_calc(loadout: mods.loadout,
 
     relevant_mod_list = get_relevant_mod_list(loadout, 7)
     loadout_array = loadout.loadout_array
-    mod_array = numpy.ones(20)
+    loadout_crit_array = loadout.loadout_crit_array
     for mod in relevant_mod_list:
-        mod_array = numpy.add(mod_array,
-                              mod.get_modarray(characteristic=target))
+        mod_array = mod.get_modarray(characteristic=target)
+        loadout_array[:13] = numpy.multiply(
+            loadout_array[:13], mod_array[:13])
 
-    loadout_array[:13] = numpy.multiply(
-        loadout_array[:13], mod_array[:13])
+        loadout_crit_array[:13] = numpy.multiply(
+            loadout_crit_array[:13], mod_array[:13])
 
     loadout.loadout_array = loadout_array
+    loadout.loadout_crit_array = loadout_crit_array

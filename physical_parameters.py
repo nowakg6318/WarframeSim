@@ -6,8 +6,13 @@ class PhysicalParameter:
     health or shields.  It should not be instantiated on its'own.
     '''
 
-    def __init__(self, basephysicalparameter, baselevel, currentlevel,
-                 species):
+    def __init__(self, basephysicalparameter=None, baselevel=None,
+                 currentlevel=None, species=None):
+
+        if not basephysicalparameter:
+            self.current_pp = 0
+            self.array = numpy.zeros(13)
+            return None
 
         self.basephysicalparameter = basephysicalparameter
         self.baselevel = baselevel
@@ -28,6 +33,14 @@ class PhysicalParameter:
         return(self.basephysicalparameter *
                (1 + self.constant1 * (self.currentlevel - self.baselevel)
                 ** self.constant2))
+
+    def __iadd__(self, other):
+        self.current_pp += other
+        return(self)
+
+    def __isub__(self, other):
+        self.current_pp -= other
+        return(self)
 
     def __gt__(self, other):
         return(self.current_pp > other)
@@ -50,7 +63,7 @@ class PhysicalParameter:
     def __mul__(self, other):
         return(self.current_pp * other)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         return(self.current_pp / other)
 
 
@@ -65,27 +78,47 @@ class Health(PhysicalParameter):
     constant1 = 0.015
     constant2 = 2
     type_dict = ({
-        'cloned-flesh': [-0.25, 0, 0],
-        'machinery': [0.25, 0, 0],
-        'flesh': [-0.25, 0, 0.25],
-        'robotic': [0, 0.25, -0.25],
-        'infested': [0, 0, 0.25],
-        'infested-flesh': [0, 0, 0.5],
-        'fossilized': [0, 0, 0.15],
-        'sinew': [0, 0.25, 0]})
+        'cloned flesh': [-0.25, 0, 0.25, 0, 0, 0.25, 0, 0,
+                         0, -0.5, 0, 0, 0.75],
+        'machinery': [0.25, 0, 0, 0, 0.5, 0, -0.25, 0.75, 0,
+                      0, 0, 0, -0.25],
+        'flesh': [-0.25, 0, 0.25, 0, 0, 0, 0.5, 0, 0, -0.25,
+                  0, 0, 0.5],
+        'robotic': [0, 0.25, -0.25, 0, 0.5, 0, -0.25, 0, 0,
+                    0, 0, 0.25, 0],
+        'infested': [0, 0, 0.25, 0, 0, 0.25, 0, 0, 0, 0.75,
+                     0, -0.5, -0.5],
+        'infested flesh': [0, 0, 0.5, -0.5, 0, 0.5, 0, 0, 0,
+                           0.5, 0, 0, 0],
+        'fossilized': [0, 0, 0.15, -0.25, 0, 0, -0.5, 0.5,
+                       0.75, 0, 0, -0.75, 0],
+        'infested sinew': [0, 0.25, 0, 0.25, 0, 0, 0, -0.5,
+                           0, 0, 0, 0.5, 0]})
 
 
 class Shield(PhysicalParameter):
+    ''' The shield class for an enemy.  Blocks damage before the enemies
+    health is affected.
+    '''
 
+    constant1 = 0.0075
+    constant2 = 2
+    type_dict = (
+        {'shield': [0.5, -0.2, 0, 0.5, 0, 0, 0, 0,
+                    0, 0, 0.75, -0.25, 0],
+         'proto shield': [0.15, -0.5, 0, 0, 0, -0.5, 0.25,
+                          0, -0.5, 0, 0.75, 0, 0]})
 
-	constant1 = 0.0075
-	constant2 = 2
-	type_dict = ({'shield':[0.5,-0.2,0],
-	'proto-shield':[0.15,-0.5,0]})
 
 class Armor(PhysicalParameter):
-	constant1 = 0.005
-	constant2 = 1.75
-	type_dict = ({'ferrite':[0,0.5,-0.15],
-	'alloy':[0,0.15,-0.5],
-	'None': [0, 0, 0]})
+    ''' The Armor class for an enemy.  Provides additional resistances
+    for an enemies health to resist damage.
+    '''
+
+    constant1 = 0.005
+    constant2 = 1.75
+    type_dict = (
+        {'ferrite': ([0, 0.5, -0.15, 0, 0, 0,
+                      0.25, -0.25, 0.75, 0, 0, 0, 0]),
+         'alloy': [0, 0.15, -0.5, 0.25, -0.5,
+                   0, 0, 0, 0, 0, -0.5, 0.75]})

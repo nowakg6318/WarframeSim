@@ -13,6 +13,7 @@ from guns import gun
 from mods import mod
 import enemies
 import mod_calculations as modcalc
+import simulate
 
 
 # Convenience functions
@@ -56,5 +57,7 @@ if __name__ == "__main__":
     Soma = gun(cursor, 'Soma')
     loadout1 = Soma.loadout_list[0]
     loadout1.add_mod(mod('Serration'))
-    modcalc.calculate_effective_damage_array(loadout1, enemies.GrineerMarine(1))
-    print(loadout1)
+    grineer = enemies.GrineerLancer(15)
+    eventlist = simulate.Simulate(simulate.EventList(loadout1, grineer))
+    for event in eventlist:
+        print(event.damage_total, event.damage_array)

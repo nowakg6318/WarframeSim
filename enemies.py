@@ -1,3 +1,5 @@
+'''Create a dictionary of enemies.
+'''
 import physical_parameters as physpara
 
 
@@ -11,15 +13,12 @@ class Grineer(Enemy):
         pass
 
 
-class GrineerMarine(Grineer):
+class GrineerLancer(Grineer):
     def __init__(self, level):
-        self.health = physpara.Health(100, 1, level, 'sinew')
-        self.shield = physpara.Shield(100, 1, level, 'proto-shield')
-        self.armor = physpara.Armor(100, 1, level, "ferrite")
+        self.health = physpara.Health(100, 1, level, 'cloned flesh')
+        self.shield = physpara.Shield()
+        self.armor = physpara.Armor(100, 1, level, 'ferrite')
         self.level = level
-
-    def yell():
-        print('Get Clem!')
 
 
 class Corpus(Enemy):
@@ -36,7 +35,7 @@ def GetDamageonGrineerLancer():
     HM = float(input('What is the health modifier of the Grineer Lancer? \n'))
     level = float(input('What is the level of the Grineer Lancer? \n'))
 
-    grineer = GrineerMarine(level)
+    grineer = GrineerLancer(level)
 
     return((impact + puncture + slash)
            * ((1 + HM) * (1 + AM)) / (1 + (grineer.armor * (1 - AM)) / 300))

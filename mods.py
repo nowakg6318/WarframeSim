@@ -61,7 +61,6 @@ class mod(object):
         Evaluates the characteristic against the if_condition of the
         mod.  If the condition is true the mod_array is returned, else
         an array of 1's is returned '''
-        print(self.if_condition)
         if eval(self.if_condition):
             return self.mod_array
         else:
@@ -107,7 +106,7 @@ class mod_slot():
             pass
 
         else:
-            mod.cost = math.ceiling(mod.cost * 1.25)
+            mod.cost = math.ceil(mod.cost * 1.25)
 
 
 class loadout():

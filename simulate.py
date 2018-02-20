@@ -9,6 +9,8 @@ Things to test:
   applied to the total damage number, or is each damage type multiplied
   against its' respective multiply.  We are currently using the second
   method.
+
+  * Create the effects of armor
 '''
 
 # Imports
@@ -28,6 +30,9 @@ class Event():
         self.damage_array = damage_array
         self.damage_total = sum(damage_array)
 
+    def __str__(self):
+        return()
+
 
 class EventList(list):
     def __init__(self, loadout: mods.loadout, target: enemies.Enemy,
@@ -36,6 +41,12 @@ class EventList(list):
         self.loadout = loadout
         self.target = target
         super().__init__(list(args))
+
+    def __str__(self):
+        return(
+            'Weapon: {} '
+            'loadout: {} \n'
+            'Target: {} \n')
 
 
 def Simulate(eventlist: EventList):
@@ -52,11 +63,12 @@ def Simulate(eventlist: EventList):
     # Main Function
     modcalc.calculate_effective_damage_array(eventlist.loadout,
                                              eventlist.target)
-
-    if eventlist.target.Shield > 0:
+    print(eventlist.loadout)
+    if eventlist.target.shield > 0:
         bullet_count, time = AttackShields(bullet_count, time, eventlist)
-
     AttackHealth(bullet_count, time, eventlist)
+
+    return(eventlist)
 
 
 def AttackShields(bullet_count: int, time: float, eventlist: EventList):
@@ -71,7 +83,7 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
     loadout = eventlist.loadout
     target = eventlist.target
 
-    while target.Health > 0 and target.Shields > 0:
+    while target.health > 0 and target.shield > 0:
         # More Definitions
         toxin_damage_modifer = target.health.array[6] + 1
         toxin_damage = loadout.loadout_array[6]
@@ -103,8 +115,8 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
 
         # If the damage done to the shields is less than the health of
         # the shields, then deal the damage and move along.
-        if shield_damage <= target.shields:
-            target.shields -= shield_damage
+        if shield_damage <= target.shield:
+            target.shield -= shield_damage
             target.health -= health_damage
             damage_array = shield_damage_array
             damage_array[6] = health_damage
@@ -113,10 +125,10 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
         # of the shields, then deal damage to break the shields and deal
         # the rest of the damage to the target's health.
         else:
-            percent_damage_done = target.shields / shield_damage
+            percent_damage_done = target.shield / shield_damage
             health_damage_array = numpy.multiply(loadout.loadout_array[:13],
                                                  target.health.array + 1)
-            target.shields = 0
+            target.shield.current_pp = 0
             target.health -= (sum(health_damage_array)
                               * (1 - percent_damage_done)
                               * loadout.critical_multipler ** critical_bool)
@@ -148,10 +160,12 @@ def AttackHealth(bullet_count: int, time: float, eventlist: EventList):
     # Definitions
     loadout = eventlist.loadout
     target = eventlist.target
-    damage_array = numpy.multiply(loadout.loadout_array[:13],
-                                  target.health.array + 1)
 
-    while target.Health > 0:
+    while target.health > 0:
+        # Definitions
+        damage_array = numpy.multiply(loadout.loadout_array[:13],
+                                      target.health.array + 1)
+
         # Fire a bullet, increase time, and increase bullet number
         bullet_count += 1
         loadout.ammo -= 1
@@ -166,13 +180,14 @@ def AttackHealth(bullet_count: int, time: float, eventlist: EventList):
         critical_bool = 1 if crit_roll < loadout.critical_chance else 0
 
         # Deal damage to health
-        health_damage = (sum(damage_array) *
-                         loadout.critical_multipler ** critical_bool)
+        health_damage_array = (damage_array *
+                               loadout.critical_multipler ** critical_bool)
 
-        target.health -= health_damage
+        target.health -= sum(health_damage_array)
 
         # Create an Event to store the data
-        eventlist.append(Event(bullet_count, time, loadout.ammo, damage_array))
+        eventlist.append(Event(bullet_count, time, loadout.ammo,
+                               health_damage_array))
 
         # Reload if needed
         if loadout.ammo == 0 and target.Health > 0:
