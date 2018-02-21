@@ -15,6 +15,7 @@ class Grineer(Enemy):
 
 class GrineerLancer(Grineer):
     def __init__(self, level):
+        self.name = 'Grineer Lancer'
         self.health = physpara.Health(100, 1, level, 'cloned flesh')
         self.shield = physpara.Shield()
         self.armor = physpara.Armor(100, 1, level, 'ferrite')
