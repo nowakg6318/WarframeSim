@@ -31,7 +31,10 @@ class Event():
         self.damage_total = sum(damage_array)
 
     def __str__(self):
-        return()
+        return(
+            'bullet: {}, time: {}, ammo left: {}, damage done: {} \n'
+            .format(self.bullet_number, self.time,
+                    self.ammo, self.damage_total))
 
 
 class EventList(list):
@@ -43,10 +46,14 @@ class EventList(list):
         super().__init__(list(args))
 
     def __str__(self):
-        return(
-            'Weapon: {} '
-            'loadout: {} \n'
-            'Target: {} \n')
+        rep_string = ('Weapon: {} '
+                      'loadout: {} \n'
+                      'Target: Level {} {} \n'
+                      .format(self.loadout.weapon.name, self.loadout.name,
+                              self.target.level, self.target.name))
+        for event in self:
+            rep_string = rep_string + event.__str__()
+        return(rep_string)
 
 
 def Simulate(eventlist: EventList):
@@ -85,7 +92,11 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
 
     while target.health > 0 and target.shield > 0:
         # More Definitions
-        toxin_damage_modifer = target.health.array[6] + 1
+        toxin_damage_modifer = (
+            ((target.health.array[6] + 1) * (target.armor.array[6] + 1))
+            / (1 + (target.armor.current_pp
+                    * (1 - target.armor.array[6]) / 300)))
+
         toxin_damage = loadout.loadout_array[6]
         shield_damage_array = numpy.multiply(loadout.loadout_array[:13],
                                              target.shield.array + 1)
@@ -163,8 +174,15 @@ def AttackHealth(bullet_count: int, time: float, eventlist: EventList):
 
     while target.health > 0:
         # Definitions
+        health_modifier_array = [(
+            ((target.health.array[i] + 1) * (target.armor.array[i] + 1))
+            / (1 + (target.armor.current_pp
+                    * (1 - target.armor.array[i]) / 300)))
+
+            for i in range(13)]
+
         damage_array = numpy.multiply(loadout.loadout_array[:13],
-                                      target.health.array + 1)
+                                      health_modifier_array)
 
         # Fire a bullet, increase time, and increase bullet number
         bullet_count += 1
