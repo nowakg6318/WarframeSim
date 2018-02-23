@@ -1,16 +1,5 @@
 ''' A module to simulate the damage of a warframe weapon against an
 enemy.
-
-Things to test:
-
-  *  Is the critical damage calculations correct?
-
-  *  Are all of the health type bonuses/detriments added up and then
-  applied to the total damage number, or is each damage type multiplied
-  against its' respective multiply.  We are currently using the second
-  method.
-
-  * Create the effects of armor
 '''
 
 # Imports
@@ -22,28 +11,11 @@ import enemies
 import mod_calculations as modcalc
 
 
-class Event():
-    def __init__(self, bullet_number, time, ammo, damage_array):
-        self.bullet_number = bullet_number
-        self.time = time
-        self.ammo = ammo
-        self.damage_array = damage_array
-        self.damage_total = sum(damage_array)
-
-    def __str__(self):
-        return(
-            'bullet: {}, time: {}, ammo left: {}, damage done: {} \n'
-            .format(self.bullet_number, self.time,
-                    self.ammo, self.damage_total))
-
-
-class EventList(list):
-    def __init__(self, loadout: mods.loadout, target: enemies.Enemy,
-                 *args: Event):
-
+class Simulation():
+    def __init__(self, loadout: mods.loadout, target: enemies.Enemy):
         self.loadout = loadout
         self.target = target
-        super().__init__(list(args))
+        self.array = []
 
     def __str__(self):
         rep_string = ('Weapon: {} '
@@ -51,12 +23,25 @@ class EventList(list):
                       'Target: Level {} {} \n'
                       .format(self.loadout.weapon.name, self.loadout.name,
                               self.target.level, self.target.name))
-        for event in self:
-            rep_string = rep_string + event.__str__()
+
+        for column in self.array:
+            rep_string = (rep_string
+                          + 'bullet: {}, time: {:.3f},'
+                          'ammo left: {}, damage done: {:.2f} \n'
+                          .format(column[0], column[1],
+                                  column[2], sum(column[5:])))
         return(rep_string)
 
 
-def Simulate(eventlist: EventList):
+def Simulator(*args: Simulation):
+    '''Takes several EventLists and runs the simulate function on
+    each of them.
+    '''
+
+    return([Simulate(arg) for arg in args])
+
+
+def Simulate(simulation: Simulation):
     '''Calculates and fills an event list with the damage done to the
     target.
 
@@ -68,17 +53,19 @@ def Simulate(eventlist: EventList):
     time = 0
 
     # Main Function
-    modcalc.calculate_effective_damage_array(eventlist.loadout,
-                                             eventlist.target)
-    print(eventlist.loadout)
-    if eventlist.target.shield > 0:
-        bullet_count, time = AttackShields(bullet_count, time, eventlist)
-    AttackHealth(bullet_count, time, eventlist)
+    modcalc.calculate_effective_damage_array(simulation.loadout,
+                                             simulation.target)
+    print(simulation.loadout)
+    if simulation.target.shield > 0:
+        bullet_count, time = AttackShields(bullet_count, time, simulation)
 
-    return(eventlist)
+    AttackHealth(bullet_count, time, simulation)
+    simulation.array = numpy.array(simulation.array)
+    print(simulation)
+    return(simulation)
 
 
-def AttackShields(bullet_count: int, time: float, eventlist: EventList):
+def AttackShields(bullet_count: int, time: float, simulation: Simulation):
     '''Calculates and fills an event list with the damage done to the
     target, until the targets shields OR health are depleted.
 
@@ -87,8 +74,8 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
     '''
 
     # Definitions to  be constant through the execution of shields.
-    loadout = eventlist.loadout
-    target = eventlist.target
+    loadout = simulation.loadout
+    target = simulation.target
 
     while target.health > 0 and target.shield > 0:
         # More Definitions
@@ -148,8 +135,14 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
                              + (1 - percent_damage_done) * health_damage_array)
                             * loadout.critical_multipler ** critical_bool)
 
-        # Create an Event to store the data
-        eventlist.append(Event(bullet_count, time, loadout.ammo, damage_array))
+        # Append the event to the simulation list
+        damage_sum = sum(damage_array)
+        total_damage = (damage_sum
+                        + sum([column[3] for column in simulation.array]))
+
+        simulation.array.append([bullet_count, time, loadout.ammo,
+                                 damage_sum, total_damage]
+                                + list(damage_array))
 
         # Reload if needed
         if loadout.ammo == 0:
@@ -160,7 +153,7 @@ def AttackShields(bullet_count: int, time: float, eventlist: EventList):
     return bullet_count, time
 
 
-def AttackHealth(bullet_count: int, time: float, eventlist: EventList):
+def AttackHealth(bullet_count: int, time: float, simulation: Simulation):
     '''Calculates and fills an event list with the damage done to the
     target, until the targets health is depleted.
 
@@ -169,8 +162,8 @@ def AttackHealth(bullet_count: int, time: float, eventlist: EventList):
     '''
 
     # Definitions
-    loadout = eventlist.loadout
-    target = eventlist.target
+    loadout = simulation.loadout
+    target = simulation.target
 
     while target.health > 0:
         # Definitions
@@ -203,13 +196,18 @@ def AttackHealth(bullet_count: int, time: float, eventlist: EventList):
 
         target.health -= sum(health_damage_array)
 
-        # Create an Event to store the data
-        eventlist.append(Event(bullet_count, time, loadout.ammo,
-                               health_damage_array))
+        # Store the data for this shot in the simulation array
+        damage_sum = sum(health_damage_array)
+        total_damage = (damage_sum
+                        + sum([column[3] for column in simulation.array]))
+
+        simulation.array.append([bullet_count, time, loadout.ammo,
+                                 damage_sum, total_damage]
+                                + list(health_damage_array))
 
         # Reload if needed
-        if loadout.ammo == 0 and target.Health > 0:
-            time = time + loadout.reload_time
+        if loadout.ammo == 0 and target.health > 0:
+            time += loadout.reload_time
             loadout.ammo = loadout.ammo_capacity
 
     # Return time and bullet_count
