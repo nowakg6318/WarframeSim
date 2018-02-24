@@ -1,9 +1,5 @@
 '''A module containing classes relating to mods used in the warframe
 weapon simulator.
-
-Things to do:
-* Make sure mod type is checked. I.E. Rifle, shotgun, etc...
-*  Allow mods that are not max levelled.
 '''
 
 '''There are three categories of mods in this program: functional,
@@ -143,14 +139,15 @@ class loadout():
             ' Mods: {} \n'
             ' Points Left: {} \n \n'
             ' Damage: \n'
-            ' Impact: {}, Puncture: {}, Slash: {} \n'
-            ' Cold: {}, Electricity: {}, Heat: {}, Toxin: {} \n'
-            ' Blast: {}, Corrosive: {}, Gas: {}, Magnetic: {}, Radiation: {},'
-            ' Viral: {} \n \n'
+            ' Impact: {:.2f}, Puncture: {:.2f}, Slash: {:.2f} \n'
+            ' Cold: {:.2f}, Electricity: {:.2f}, Heat: {:.2f},'
+            ' Toxin: {:.2f} \n Blast: {:.2f}, Corrosive: {:.2f},'
+            ' Gas: {:.2f}, Magnetic: {:.2f}, Radiation: {:.2f},'
+            ' Viral: {:.2f} \n \n'
             ' Stats: \n'
             ' Accuracy: {}, Fire Rate: {}, Critical Chance: {},'
             ' Critical Multiplier: {} \n Status Chance: {},'
-            '  Ammo Capacity: {}, Reload Time: {}'
+            '  Ammo Capacity: {}, Reload Time: {} \n'
             .format(self.weapon.name, self.name,
                     [modslot.polarity for modslot in self.modslot_list],
                     [mod.name for mod in self.mod_list],

@@ -12,6 +12,7 @@ class PhysicalParameter:
         if not basephysicalparameter:
             self.current_pp = 0
             self.array = numpy.zeros(13)
+            self.species = None
             return None
 
         self.basephysicalparameter = basephysicalparameter
@@ -30,9 +31,12 @@ class PhysicalParameter:
         self.array = numpy.array(self.type_dict[species])
 
     def pp_max_calc(self):
-        return(self.basephysicalparameter *
-               (1 + self.constant1 * (self.currentlevel - self.baselevel)
-                ** self.constant2))
+        if self.species:
+            return(self.basephysicalparameter *
+                   (1 + self.constant1 * (self.currentlevel - self.baselevel)
+                    ** self.constant2))
+        else:
+            return(0)
 
     def __iadd__(self, other):
         self.current_pp += other
@@ -121,4 +125,4 @@ class Armor(PhysicalParameter):
         {'ferrite': ([0, 0.5, -0.15, 0, 0, 0,
                       0.25, -0.25, 0.75, 0, 0, 0, 0]),
          'alloy': [0, 0.15, -0.5, 0.25, -0.5,
-                   0, 0, 0, 0, 0, -0.5, 0.75]})
+                   0, 0, 0, 0, 0, -0.5, 0.75, 0]})

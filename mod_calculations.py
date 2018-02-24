@@ -1,12 +1,5 @@
 '''A module to simulate the weapon damage of a weapon in warframe
  against a specific target using a specific loadout.
-
- Things to do:
- * FIX!!!!!!
-
- * Be able to take more than just rifles
-
- * Possibly make this process into a matrix calculation
 '''
 
 # Imports

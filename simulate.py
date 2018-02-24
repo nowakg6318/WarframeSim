@@ -60,7 +60,12 @@ def Simulate(simulation: Simulation):
         bullet_count, time = AttackShields(bullet_count, time, simulation)
 
     AttackHealth(bullet_count, time, simulation)
-    simulation.array = numpy.array(simulation.array)
+    simulation.array = numpy.array(simulation.array)  
+    simulation.target.health.current_pp = simulation.target.health.pp_max_calc()
+    simulation.target.shield.current_pp = simulation.target.shield.pp_max_calc()
+    simulation.target.armor.current_pp = simulation.target.armor.pp_max_calc()
+
+
     print(simulation)
     return(simulation)
 

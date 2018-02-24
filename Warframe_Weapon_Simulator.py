@@ -1,9 +1,6 @@
 '''
 A program to simulate the damage done by weapons in the videogame
 warframe.
-
-Things to do:
-  * Give an option for the user to print out all of the valid weapon names.
 '''
 
 # Imports
@@ -14,6 +11,7 @@ from mods import mod
 import enemies
 import mod_calculations as modcalc
 import simulate
+import plotter
 
 
 # Convenience functions
@@ -57,7 +55,11 @@ if __name__ == "__main__":
     Soma = gun(cursor, 'Soma')
     loadout1 = Soma.loadout_list[0]
     loadout1.add_mod(mod('Serration'))
-    grineer = enemies.GrineerLancer(15)
-    eventlist = simulate.Simulate(simulate.EventList(loadout1, grineer))
-    for event in eventlist:
-        print(event.damage_total, event.damage_array)
+    loadout2 = Soma.add_loadout()
+    loadout2.add_mod(mod('Serration'), mod('Hellfire'))
+    grineer = enemies.EliteLancer(15)
+    grineer2 = enemies.EliteLancer(20)
+    grineer3 = enemies.EliteLancer(20)
+    simulation_list = simulate.Simulator(simulate.Simulation(loadout1, grineer),
+                                         simulate.Simulation(loadout2, grineer2))
+    plotter.Plotter(simulation_list, y_units='total damage')

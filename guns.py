@@ -1,8 +1,6 @@
 # All guns are assumed to be level 30
 # There is currently no way to change this
 #
-# Things to add
-# A function that makes damage vectors easier to calculate
 
 # imports
 import numpy
@@ -41,12 +39,12 @@ class gun(weapon):
 
         # Create first loadout
         self.loadout_list = []
-        self.add_loadout(cursor)
+        self.add_loadout()
 
         # Self variables
         self.current_magazine = self.magazine_capacity
 
-    def add_loadout(self, cursor):
+    def add_loadout(self):
         polarity_list = (self.cursor.execute(
             '''SELECT mod_polarity_1, mod_polarity_2, mod_polarity_3,
             mod_polarity_4, mod_polarity_5, mod_polarity_6,
@@ -59,3 +57,4 @@ class gun(weapon):
             self, polarity_list))
 
         del polarity_list
+        return(self.loadout_list[len(self.loadout_list) - 1])
