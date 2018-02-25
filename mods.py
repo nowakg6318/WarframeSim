@@ -27,17 +27,18 @@ import enemies # noqa E402
 
 
 class mod(object):
-    def __init__(self, name):
+    def __init__(self, name, level):
         self.name = name
+        self.level = level
 
         datagrab = _dictionaries.PRIMARY_MOD_DICT[self.name]
 
         self.type = datagrab[0]
         self.priority = datagrab[1]
-        self.cost = datagrab[2]
-        self.polarity = datagrab[3]
-        self.if_condition = datagrab[4]
-        self.else_condition = datagrab[5]
+        self.base_cost = datagrab[2]
+        self.max_level = datagrab[3]
+        self.polarity = datagrab[4]
+        self.if_condition = datagrab[5]
         self.damage_vector = datagrab[6:18]
         self.accuracy = datagrab[19]
         self.fire_rate = datagrab[20]
@@ -47,7 +48,14 @@ class mod(object):
         self.magazine_capacity = datagrab[24]
         self.reload_time = datagrab[25]
 
-        self.mod_array = numpy.array(datagrab[6:])
+        # Check to see if given level is higher than max level
+        if self.level > self.max_level:
+            raise Exception('The given level, {}, is greater than the'
+                            ' maximum allowable level, {}, for this mod.'
+                            .format(self.level, self.max_level))
+
+        self.mod_array = numpy.array(datagrab[6:]) * (self.level + 1)
+        self.cost = self.base_cost + self.level
         del datagrab
 
     def get_modarray(self, characteristic: Any = None) -> numpy.array:  # noqa W291
@@ -92,6 +100,15 @@ class mod_slot():
             raise Exception('%s has already been added to this loadout.'
                             '  Please add a different mod.' % mod.name)
 
+        # Check to see if the mod is compatible with the weapon
+        if not mod.type == loadout.weapon_mod_type:
+            # Check to see if the weapon is a bow
+            if (mod.type == 'Rifle' and loadout.weapon_mod_type == 'Bow'):
+                pass
+            else:
+                raise Exception('{} is not compatible with the {} weapon type'
+                                .format(mod.name, loadout.weapon_mod_type))
+
         self.mod_name = mod.name
         self.mod = mod
 
@@ -110,10 +127,10 @@ class loadout():
         self.cursor = cursor
         self.name = name
         self.weapon = weapon
-        self.points = 60
-        self.loadout_array = weapon.weapon_array
-        self.loadout_crit_array = numpy.zeros(20)
 
+        self.points = 60
+        self.weapon_mod_type = self.weapon.mod_type
+        self.loadout_array = weapon.weapon_array
         self.accuracy = self.loadout_array[13]
         self.fire_rate = self.loadout_array[14]
         self.critical_chance = self.loadout_array[15]

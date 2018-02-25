@@ -107,13 +107,14 @@ PRIMARY_DICT={
 ,"Vulkar Wraith": ["Hitscan",'Rifle',225.0,25.0,0,0,0,0,0,0,0,0,0,0,0,13.3,1.5,0.20,2.0,0.25,8,3.0,'Madurai',None,None,None,None,None,None,None]
 ,"Zhuge": ["Projectile",'Bow',5.0,75.0,20.0,0,0,0,0,0,0,0,0,0,0,40.0,4.17,0.20,2.0,0.35,20,2.5,'Madurai',None,None,None,None,None,None,None]}
 
-PRIMARY_MOD_DICT = {'Serration':['Rifle', [1],  14, 'Madurai', 'True', 'pass', 1.65, 1.65, 1.65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0, 0, 0],
-                'Heavy Caliber': ['Rifle', [1,0],  16, 'Madurai', 'True', 'pass', 1.65, 1.65, 1.65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-0.55, 0, 0, 0, 0, 0, 0],
-                'Bane of Grineer': ['Rifle', [7], 9, 'Madurai', 'isinstance(characteristic, enemies.Grineer)', 'pass', 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0, 0, 0, 0, 0, 0, 0],
-                'Bane of Corpus': ['Rifle', [7], 9, 'Madurai', 'isinstance(characteristic, enemies.Corpus)', 'pass', 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0, 0, 0, 0, 0, 0, 0],
-                'Hellfire': ['Rifle', [2], 11, 'Naramon', 'True', 'pass', 0, 0, 0, 0, 0, 0.9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                'Infected Clip': ['Rifle', [2], 11, 'Naramon', 'True', 'pass', 0, 0, 0, 0.9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                'Vital Sense': ['Rifle', [0], 9, 'Madurai', 'True', 'pass', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.2, 0, 0, 0]} 
+PRIMARY_MOD_DICT = {'Serration':['Rifle', [1],  4, 10, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0, 0, 0],
+                'Heavy Caliber': ['Rifle', [1,0],  6, 10, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-0.55, 0, 0, 0, 0, 0, 0],
+                'Bane of Grineer': ['Rifle', [7], 4, 5, 'Madurai', 'isinstance(characteristic, enemies.Grineer)', 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0],
+                'Bane of Corpus': ['Rifle', [7], 4, 5, 'Madurai', 'isinstance(characteristic, enemies.Corpus)', 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0],
+                'Hellfire': ['Rifle', [2], 6, 5, 'Naramon', 'True', 0, 0, 0, 0, 0, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'Infected Clip': ['Rifle', [2], 6, 5, 'Naramon', 'True', 0, 0, 0, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'Vital Sense': ['Rifle', [0], 4, 5, 'Madurai', 'True', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.2, 0, 0, 0],
+                'Point Blank': ['Shotgun', [0], 4, 5, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]} 
 
 # Table Creator
 # Primary Weapons

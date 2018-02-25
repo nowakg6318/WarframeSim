@@ -24,7 +24,7 @@ class gun(weapon):
             (self.name[0].upper() + self.name[1:].lower(),))
             .fetchall()[0])
 
-        self.mod_type = datagrab[1]
+        self.mod_type = datagrab[2]
         self.damage_vector = datagrab[3:15]
         self.accuracy = datagrab[16]
         self.fire_rate = datagrab[17]
