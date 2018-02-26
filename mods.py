@@ -95,7 +95,6 @@ class mod_slot():
                 % mod)
 
         # Check to see if a mod of the same name has already been added
-        loadout.update_mod_list()
         if mod.name in [mod.name for mod in loadout.mod_list]:
             raise Exception('%s has already been added to this loadout.'
                             '  Please add a different mod.' % mod.name)
@@ -138,14 +137,11 @@ class loadout():
         self.status_chance = self.loadout_array[17]
         self.ammo_capacity = self.loadout_array[18]
         self.reload_time = self.loadout_array[19]
-
         self.ammo = self.ammo_capacity
 
         self.modslot_list = [0] * 8
         for index in range(8):
             self.modslot_list[index] = mod_slot(polarity=polarity_list[index])
-
-        self.update_mod_list()
 
     def __str__(self):
         return(
@@ -183,13 +179,23 @@ class loadout():
 
         )
 
+    @property
+    def mod_list(self):
+        '''A function to update the mod_list with all of the non-empty
+        modslots in a loadout. '''
+
+        return([modslot.mod for modslot
+                in self.modslot_list if modslot.mod])
+
     def add_mod(self, *args: mod) -> None:
         '''A function to add mods to the loadout modslots without needing
         to call the modslots individually.  The function will fill the
         first non-empty modslot in sequential order.'''
 
-        self.update_mod_list()
-        if len(args) > self.get_number_empty_modslots():
+        number_empty_modslots = sum(
+            [True for modslot in self.modslot_list if not modslot.mod])
+
+        if len(args) > number_empty_modslots:
             raise Exception('There are more mods requesting',
                             'to be added then available modslots.')
 
@@ -203,26 +209,10 @@ class loadout():
 
         self.calculate_mod_cost()
 
-    def get_number_empty_modslots(self) -> int:
-        '''Calculates the number of empty modslots in a loadout.'''
-
-        number_empty_modslots = sum(
-            [True for modslot in self.modslot_list if not modslot.mod])
-
-        return number_empty_modslots
-
-    def update_mod_list(self):
-        '''A function to update the mod_list with all of the non-empty
-        modslots in a loadout. '''
-
-        self.mod_list = [modslot.mod for modslot
-                         in self.modslot_list if modslot.mod]
-
     def calculate_mod_cost(self):
         '''A function to calculate the cost of the current mods in the
         loadout.  This number should not surpass 60.'''
 
-        self.update_mod_list()
         self.points = 60 - sum(mod.cost for mod in self.mod_list)
 
         if self.points < 0:

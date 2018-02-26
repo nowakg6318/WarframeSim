@@ -40,7 +40,6 @@ def get_relevant_mod_list(loadout: mods.loadout, priority: int) -> list:
     ''' A function to create a list of mods meeting a certain priority
     from a loadout.'''
 
-    loadout.update_mod_list()  # Get rid of this.
     relevant_mod_list = [mod for mod in loadout.mod_list
                          if priority in mod.priority]
 
