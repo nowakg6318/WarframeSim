@@ -6,6 +6,7 @@
 import numpy
 
 import mods
+import _dictionaries
 
 
 class weapon():
@@ -14,27 +15,23 @@ class weapon():
 
 
 class gun(weapon):
-    def __init__(self, cursor, name):
-        self.cursor = cursor
-        self.name = name
+    def __init__(self, name):
+        self.name = name[0].upper() + name[1:].lower()
 
         # Grab weapon values from database
-        datagrab = (cursor.execute(
-            '''SELECT * FROM primary_weapons WHERE weapon_name=?''',
-            (self.name[0].upper() + self.name[1:].lower(),))
-            .fetchall()[0])
+        datagrab = _dictionaries.PRIMARY_DICT[self.name]
 
-        self.mod_type = datagrab[2]
-        self.damage_vector = datagrab[3:15]
-        self.accuracy = datagrab[16]
-        self.fire_rate = datagrab[17]
-        self.critical_chance = datagrab[18]
-        self.critical_multiplier = datagrab[19]
-        self.status_chance = datagrab[20]
-        self.magazine_capacity = datagrab[21]
-        self.reload_time = datagrab[22]
+        self.mod_type = datagrab[1]
+        self.damage_vector = datagrab[2:14]
+        self.accuracy = datagrab[15]
+        self.fire_rate = datagrab[16]
+        self.critical_chance = datagrab[17]
+        self.critical_multiplier = datagrab[18]
+        self.status_chance = datagrab[19]
+        self.magazine_capacity = datagrab[20]
+        self.reload_time = datagrab[21]
 
-        self.weapon_array = numpy.array(datagrab[3:23])
+        self.weapon_array = numpy.array(datagrab[2:22])
         del datagrab
 
         # Create first loadout
@@ -45,16 +42,11 @@ class gun(weapon):
         self.current_magazine = self.magazine_capacity
 
     def add_loadout(self):
-        polarity_list = (self.cursor.execute(
-            '''SELECT mod_polarity_1, mod_polarity_2, mod_polarity_3,
-            mod_polarity_4, mod_polarity_5, mod_polarity_6,
-            mod_polarity_7, mod_polarity_8 FROM primary_weapons
-            WHERE weapon_name=? ''',
-            (self.name[0].upper() + self.name[1:].lower(),)).fetchall()[0])
+        polarity_list = _dictionaries.PRIMARY_DICT[self.name][22:]
 
-        self.loadout_list.append(mods.loadout(
-            self.cursor, "loadout" + str(len(self.loadout_list)),
-            self, polarity_list))
+        self.loadout_list.append(mods.loadout('loadout'
+                                              + str(len(self.loadout_list)),
+                                              self, polarity_list))
 
         del polarity_list
         return(self.loadout_list[len(self.loadout_list) - 1])

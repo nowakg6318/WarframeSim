@@ -46,20 +46,11 @@ def Start(cursor):
 
 # Main Function
 if __name__ == "__main__":
-
-    # Establish connection to database
-    connection = sqlite3.connect('Warframe.db')
-    cursor = connection.cursor()
-
     # Play around
-    Soma = gun(cursor, 'Soma')
+    Soma = gun('Soma')
     loadout1 = Soma.loadout_list[0]
-    loadout1.add_mod(mod('Serration'))
-    loadout2 = Soma.add_loadout()
-    loadout2.add_mod(mod('Serration'), mod('Hellfire'))
+    loadout1.add_mod(mod('Serration', 10))
+    loadout1.modslot_list[1].add_mod(loadout1, mod('Hellfire', 1))
     grineer = enemies.EliteLancer(15)
-    grineer2 = enemies.EliteLancer(20)
-    grineer3 = enemies.EliteLancer(20)
-    simulation_list = simulate.Simulator(simulate.Simulation(loadout1, grineer),
-                                         simulate.Simulation(loadout2, grineer2))
-    plotter.Plotter(simulation_list, y_units='total damage')
+    simulation_list = simulate.Simulator(simulate.Simulation(loadout1, grineer))
+    plotter.Plotter(simulation_list, y_units='damage')

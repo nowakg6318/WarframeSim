@@ -122,8 +122,7 @@ class mod_slot():
 
 
 class loadout():
-    def __init__(self, cursor, name, weapon, polarity_list):
-        self.cursor = cursor
+    def __init__(self, name, weapon, polarity_list):
         self.name = name
         self.weapon = weapon
 
