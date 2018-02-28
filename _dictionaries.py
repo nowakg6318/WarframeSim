@@ -1,9 +1,5 @@
-import sqlite3
-
-# SQLite connection
-connection = sqlite3.connect('Warframe.db')
-cursor = connection.cursor()
-
+''' A module containing dictionaries with all of the weapon/mod values.
+'''
 # This is the gun dictionary.  It holds all of the different primaries in the game and their useful values
 # All Discharge weapons have a damage in terms of damage per second and have a proc chance in terms of percent chance per second.
 # The dictionary has the form....
@@ -11,14 +7,6 @@ cursor = connection.cursor()
 # followed by 8 values corresponding to possible polarities
 # Damage vectors will take the form
 # Impact Puncture Slash Cold Electricity Heat Toxin Blast Corrosive Gas Magnetic Radiation Viral
-
-'''
-A module containing dictionaries with all of the weapon/mod values.
-
-
-Things to test:
- * Does serration effect elemental-only weapons
-'''
 
 PRIMARY_DICT={
 "Amprex": ["Discharge",'Rifle',0,0,0,0,7.5,0,0,0,0,0,0,0,0,12.5,20,0.50,2.0,0.20,100,2.7,None,None,None,None,None,None,None,None]
@@ -107,46 +95,14 @@ PRIMARY_DICT={
 ,"Vulkar Wraith": ["Hitscan",'Rifle',225.0,25.0,0,0,0,0,0,0,0,0,0,0,0,13.3,1.5,0.20,2.0,0.25,8,3.0,'Madurai',None,None,None,None,None,None,None]
 ,"Zhuge": ["Projectile",'Bow',5.0,75.0,20.0,0,0,0,0,0,0,0,0,0,0,40.0,4.17,0.20,2.0,0.35,20,2.5,'Madurai',None,None,None,None,None,None,None]}
 
-PRIMARY_MOD_DICT = {'Serration':['Rifle', [1],  4, 10, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0, 0, 0],
-                'Heavy Caliber': ['Rifle', [1,0],  6, 10, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-0.55, 0, 0, 0, 0, 0, 0],
-                'Bane of Grineer': ['Rifle', [7], 4, 5, 'Madurai', 'isinstance(characteristic, enemies.Grineer)', 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0],
-                'Bane of Corpus': ['Rifle', [7], 4, 5, 'Madurai', 'isinstance(characteristic, enemies.Corpus)', 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0],
+PRIMARY_MOD_DICT = {'Serration':['Rifle', [1],  4, 10, 'Madurai', 'True', 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0],
+                'Heavy Caliber': ['Rifle', [1,0],  6, 10, 'Madurai', 'True', 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15,-0.55, 0, 0, 0, 0, 0, 0],
+                'Bane of Grineer': ['Rifle', [7], 4, 5, 'Madurai', 'characteristic.type = "Grineer"', 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0],
+                'Bane of Corpus': ['Rifle', [7], 4, 5, 'Madurai', 'characteristic.type = "Corpus"', 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0],
                 'Hellfire': ['Rifle', [2], 6, 5, 'Naramon', 'True', 0, 0, 0, 0, 0, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                'Infected Clip': ['Rifle', [2], 6, 5, 'Naramon', 'True', 0, 0, 0, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'Infected Clip': ['Rifle', [2], 6, 5, 'Naramon', 'True', 0, 0, 0, 0, 0, 0, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 'Vital Sense': ['Rifle', [0], 4, 5, 'Madurai', 'True', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.2, 0, 0, 0],
-                'Point Blank': ['Shotgun', [0], 4, 5, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]} 
+                'Point Blank': ['Shotgun', [0], 4, 5, 'Madurai', 'True', 0.15, 0.15, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
 
-# Table Creator
-# Primary Weapons
-cursor.execute('''DROP TABLE IF EXISTS primary_weapons''')
-cursor.execute("CREATE TABLE IF NOT EXISTS primary_weapons (weapon_name TEXT, weapon_type TEXT, mod_type TEXT, impact REAL, puncture REAL, slash REAL, cold REAL, electricity REAL, heat REAL, toxin REAL, blast REAL, corrosive REAL, gas REAL, magnetic REAL, radiation REAL, viral REAL, accuracy REAL, fire_rate REAL, critical_chance REAL, critical_multipler REAL, status_chance REAL, ammo_capacity REAL, reload_time REAL, mod_polarity_1 TEXT, mod_polarity_2 TEXT, mod_polarity_3 TEXT, mod_polarity_4 TEXT, mod_polarity_5 TEXT, mod_polarity_6 TEXT, mod_polarity_7 TEXT, mod_polarity_8 TEXT)")
-
-# Primary_Mods
-#cursor.execute('''DROP TABLE IF EXISTS primary_mods''')
-#cursor.execute('''DROP TABLE IF EXISTS PrimaryModPriorities''')
-#cursor.execute("CREATE TABLE IF NOT EXISTS primary_mods (mod_name TEXT, mod_type TEXT, mod_cost REAL, mod_polarity TEXT, if_condition TEXT, else_condition TEXT, impact_bonus REAL, puncture_bonus REAL, slash_bonus REAL, cold_bonus REAL, electricity_bonus REAL, heat_bonus REAL, toxin_bonus REAL, blast_bonus REAL, corrosive_bonus REAL, gas_bonus REAL, magnetic_bonus REAL, radiation_bonus REAL, viral_bonus REAL, accuracy REAL, fire_rate REAL, critical_chance REAL, critical_multipler REAL, status_chance REAL, ammo_capacity REAL, reload_time REAL)")
-#cursor.execute("CREATE TABLE IF NOT EXISTS PrimaryModPriorities (mod_name TEXT, mod_priority REAL)")
-
-# Data Entry Function
-def data_entry(table, dictionary):
-    for key in dictionary.keys():
-        if hasattr(dictionary[key], '__iter__'):
-            num_entries = len(dictionary[key])
-            entry_list = [key] + dictionary[key]
-        else:
-            num_entries = 1
-            entry_list = [key, dictionary[key]]
-
-        cursor.execute('INSERT INTO ' + table + ' VALUES (' + '?,' * num_entries + '?)', entry_list)
-
-# Data Entry Loop
-data_entry('primary_weapons', PRIMARY_DICT)
-
-
-
-
-connection.commit()
-connection.close()
-
-
-
+ENEMY_DICT = {'Grineer Lancer': ['Grineer', 1, 100, 'cloned flesh', 100, 'ferrite', None, None],
+              'Elite Lancer': ['Grineer', 15, 150, 'cloned flesh', 200, 'alloy', None, None]}
