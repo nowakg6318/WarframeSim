@@ -82,7 +82,7 @@ PRIMARY_DICT={
 ,"Supra": ["Projectile",'Rifle',4.5,33.8,6.7,0,0,0,0,0,0,0,0,0,0,8.3,12.5,0.025,1.5,0.05,180,3.0,None,None,None,None,None,None,None,None]
 ,"Sybaris": ["Hitscan",'Rifle',23.1,23.1,23.8,0,0,0,0,0,0,0,0,0,0,28.6,3.98,0.25,2.0,0.10,10,2.0,None,None,None,None,None,None,None,None]
 ,"Sybaris Dex": ["Hitscan",'Rifle',22.5,18.75,33.75,0,0,0,0,0,0,0,0,0,0,28.6,4.17,0.35,2.0,0.10,14,1.5,None,None,None,None,None,None,None,None]
-,"Synapse": ["Discharge",'Rifle',0,0,0,0,12.5,0,0,0,0,0,0,0,0,12.5,10,0.50,2.0,0.10,100,1.5,None,None,None,None,None,None,None,None]
+,"Synapse": ["Discharge",'Rifle',0,0,0,0,12.5, 0,0,0,0,0,0,0,0,12.5,10,0.50,2.0,0.10,100,1.5,None,None,None,None,None,None,None,None]
 ,"Tetra": ["Projectile",'Rifle',6.0,24.0,0,0,0,0,0,0,0,0,0,0,0,18.2,6.67,0.025,1.5,0.10,60,2.0,None,None,None,None,None,None,None,None]
 ,"Tetra Prisma": ["Projectile",'Rifle',7.0,28.0,0,0,0,0,0,0,0,0,0,0,0,18.2,7.08,0.10,2.0,0.15,60,2.0,None,None,None,None,None,None,None,None]
 ,"Tiberon": ["Hitscan",'Rifle',15.0,30.0,15.0,0,0,0,0,0,0,0,0,0,0,33.3,9.09,0.05,2.0,0.025,30,2.3,None,None,None,None,None,None,None,None]

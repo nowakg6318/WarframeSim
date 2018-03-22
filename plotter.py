@@ -93,14 +93,14 @@ def TitleStringCreator(simulation_list: simulate.Simulation,
             and simulation.target.level == simulation_list[0].target.level
             for simulation in simulation_list]):
 
-        title_string += ('Target: Level {} {} '
+        title_string += ('Target: Level {} {}, '
                          .format(simulation.target.level,
                                  simulation.target.name))
 
     if all([simulation.loadout.name == simulation_list[0].loadout.name
             for simulation in simulation_list]):
 
-        title_string += 'Loudout: {} '.format(simulation.loadout.name)
+        title_string += 'Loudout: {}, '.format(simulation.loadout.name)
 
     title_string += ('{} vs. {}'
                      .format(unit_dict[y_units][1],

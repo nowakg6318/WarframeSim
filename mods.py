@@ -27,11 +27,12 @@ import enemies # noqa E402
 
 
 class mod(object):
-    def __init__(self, name, level):
+    def __init__(self, name, level, datagrab=[None]):
         self.name = name
         self.level = level
 
-        datagrab = _dictionaries.PRIMARY_MOD_DICT[self.name]
+        if not any(datagrab):
+            datagrab = _dictionaries.PRIMARY_MOD_DICT[self.name]
 
         self.type = datagrab[0]
         self.priority = datagrab[1]
@@ -69,6 +70,14 @@ class mod(object):
             return self.mod_array
         else:
             return [1] * len(self.mod_array)
+
+
+class ProxyMod(mod):
+    def __init__(self, elemental_damage_array):
+        mod.__init__(self, 'Proxy Mod', 0,
+                     numpy.array(2 * [None] + [0, 0] + [None] + ['True']
+                                 + [0] * 3 + list(elemental_damage_array)
+                                 + [0] * 13))
 
 
 class mod_slot():
@@ -121,14 +130,39 @@ class mod_slot():
             mod.cost = math.ceil(mod.cost * 1.25)
 
 
+class gun():
+    def __init__(self, name):
+        self.name = name[0].upper() + name[1:].lower()
+
+        # Grab weapon values from database
+        datagrab = _dictionaries.PRIMARY_DICT[self.name]
+
+        self.mod_type = datagrab[1]
+        self.damage_vector = datagrab[2:14]
+        self.accuracy = datagrab[15]
+        self.fire_rate = datagrab[16]
+        self.critical_chance = datagrab[17]
+        self.critical_multiplier = datagrab[18]
+        self.status_chance = datagrab[19]
+        self.magazine_capacity = datagrab[20]
+        self.reload_time = datagrab[21]
+
+        self.weapon_array = numpy.array(datagrab[2:22])
+        self.polarity_list = datagrab[22:]
+        del datagrab
+
+        # Self variables
+        self.current_magazine = self.magazine_capacity
+
+
 class loadout():
-    def __init__(self, name, weapon, polarity_list):
+    def __init__(self, name, weapon_name):
         self.name = name
-        self.weapon = weapon
+        self.weapon = gun(weapon_name)
 
         self.points = 60
         self.weapon_mod_type = self.weapon.mod_type
-        self.loadout_array = weapon.weapon_array
+        self.loadout_array = self.weapon.weapon_array
         self.accuracy = self.loadout_array[13]
         self.fire_rate = self.loadout_array[14]
         self.critical_chance = self.loadout_array[15]
@@ -139,6 +173,7 @@ class loadout():
         self.ammo = self.ammo_capacity
 
         self.modslot_list = [0] * 8
+        polarity_list = self.weapon.polarity_list
         for index in range(8):
             self.modslot_list[index] = mod_slot(polarity=polarity_list[index])
 

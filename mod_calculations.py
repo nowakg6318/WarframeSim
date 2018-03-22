@@ -46,6 +46,20 @@ def get_relevant_mod_list(loadout: mods.loadout, priority: int) -> list:
     return relevant_mod_list
 
 
+def CreateProxyModList(index: int) -> list:
+    ''' Creates a binary list, where all entries of the list are zero
+    except the entry given by the parameter.
+    '''
+
+    list1 = [0, 1, 2, 3]
+    for num in list1:
+        if num == index:
+            list1[num] = 1
+        else:
+            list1[num] = 0
+    return(list1)
+
+
 def non_damage_mod_calc(loadout: mods.loadout) -> None:
     ''' Calculates the enhancements of non-damage type mods such as
     fire rate, accuracy, critical chance, ... , etc. '''
@@ -71,8 +85,8 @@ def base_damage_mod_calc(loadout: mods.loadout) -> None:
     mod_array = numpy.ones(20)
     for mod in relevant_mod_list:
         mod_array = numpy.add(mod_array, mod.get_modarray())
-    loadout_array[:3] = (numpy.multiply(
-        loadout_array[:3], mod_array[:3]))
+    loadout_array[:13] = (numpy.multiply(
+        loadout_array[:13], mod_array[:13]))
 
     loadout.loadout_array = loadout_array
 
@@ -85,13 +99,11 @@ def first_elemental_mod_calc(loadout: mods.loadout) -> None:
     loadout_array = loadout.loadout_array
     for mod in relevant_mod_list:
         mod_array = mod.get_modarray()
-        sum_of_physical_damage = (loadout_array[0]
-                                  + loadout_array[1]
-                                  + loadout_array[2])
+        non_secondary_damage_sum = sum(loadout_array[:7])
 
         non_zero_element = numpy.nonzero(mod_array[:13])[0]
         loadout_array[non_zero_element] = (
-            mod_array[non_zero_element] * sum_of_physical_damage
+            mod_array[non_zero_element] * non_secondary_damage_sum
             + loadout_array[non_zero_element])
 
     loadout.loadout_array = loadout_array
@@ -100,11 +112,7 @@ def first_elemental_mod_calc(loadout: mods.loadout) -> None:
 def second_elemental_mod_calc(loadout: mods.loadout) -> None:
     ''' Calculates the enhancements of the combination of first level
     elemental damage.
-
-    Things to do:
-        * Check for twice listed elements in first element array and
-         delete any copies.  Then we wont have two cases of the same
-        element in each loadout.'''
+    '''
 
     # Imports
     import math
@@ -116,6 +124,15 @@ def second_elemental_mod_calc(loadout: mods.loadout) -> None:
 
     loadout_array = loadout.loadout_array
     relevant_mod_list = get_relevant_mod_list(loadout, 2)
+
+    # Account for any innate elemental damage in the weapon.
+    innate_damage_indices = numpy.nonzero(loadout.weapon.weapon_array[3:7])[0]  # noqa
+    print(innate_damage_indices)
+    if any(innate_damage_indices):
+        for index in innate_damage_indices:
+            relevant_mod_list = (
+                [mods.ProxyMod(CreateProxyModList(index))]
+                + relevant_mod_list)
 
     # Ensure there are no duplicates of the same element
     # in the relevant mod list
@@ -131,19 +148,21 @@ def second_elemental_mod_calc(loadout: mods.loadout) -> None:
     # Match first elemental pairs to second elemental type and
     # calculate final second elemental damage
     number_even_pairs_elements = math.floor(len(relevant_mod_list) / 2)
+
     for index in range(number_even_pairs_elements):
         first_mod_array = relevant_mod_list[2 * index].get_modarray()
-        first_mod_element_index = numpy.nonzero(first_mod_array[3:7])[0]
+        first_mod_element_index = numpy.nonzero(first_mod_array[3:7])[0][0]
 
         second_mod_array = relevant_mod_list[2 * index + 1].get_modarray()
-        second_mod_element_index = numpy.nonzero(second_mod_array[3:7])[0]
+        second_mod_element_index = numpy.nonzero(second_mod_array[3:7])[0][0]
 
-        key = (first_mod_element_index[0], second_mod_element_index[0])
+        key = (first_mod_element_index, second_mod_element_index)
         if key not in elemental_dict.keys():
-            continue  # Is this the right command?
+            continue
         loadout_array[elemental_dict[key]] = (
             loadout_array[first_mod_element_index + 3]
-            + loadout_array[second_mod_element_index + 3])
+            + loadout_array[second_mod_element_index + 3]
+            + loadout_array[elemental_dict[key]])
 
         loadout_array[first_mod_element_index + 3] = 0
         loadout_array[second_mod_element_index + 3] = 0
