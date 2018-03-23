@@ -130,39 +130,17 @@ class mod_slot():
             mod.cost = math.ceil(mod.cost * 1.25)
 
 
-class gun():
-    def __init__(self, name):
-        self.name = name[0].upper() + name[1:].lower()
-
-        # Grab weapon values from database
-        datagrab = _dictionaries.PRIMARY_DICT[self.name]
-
-        self.mod_type = datagrab[1]
-        self.damage_vector = datagrab[2:14]
-        self.accuracy = datagrab[15]
-        self.fire_rate = datagrab[16]
-        self.critical_chance = datagrab[17]
-        self.critical_multiplier = datagrab[18]
-        self.status_chance = datagrab[19]
-        self.magazine_capacity = datagrab[20]
-        self.reload_time = datagrab[21]
-
-        self.weapon_array = numpy.array(datagrab[2:22])
-        self.polarity_list = datagrab[22:]
-        del datagrab
-
-        # Self variables
-        self.current_magazine = self.magazine_capacity
-
-
 class loadout():
     def __init__(self, name, weapon_name):
         self.name = name
-        self.weapon = gun(weapon_name)
+
+        datagrab = _dictionaries.PRIMARY_DICT[weapon_name]
+        self.weapon_name = weapon_name
+        self.weapon_mod_type = datagrab[1]
+        self.weapon_array = numpy.array(datagrab[2:22])
 
         self.points = 60
-        self.weapon_mod_type = self.weapon.mod_type
-        self.loadout_array = self.weapon.weapon_array
+        self.loadout_array = self.weapon_array
         self.accuracy = self.loadout_array[13]
         self.fire_rate = self.loadout_array[14]
         self.critical_chance = self.loadout_array[15]
@@ -173,9 +151,10 @@ class loadout():
         self.ammo = self.ammo_capacity
 
         self.modslot_list = [0] * 8
-        polarity_list = self.weapon.polarity_list
+        polarity_list = datagrab[22:]
         for index in range(8):
             self.modslot_list[index] = mod_slot(polarity=polarity_list[index])
+        del datagrab
 
     def __str__(self):
         return(
@@ -195,7 +174,7 @@ class loadout():
             ' Accuracy: {}, Fire Rate: {}, Critical Chance: {},'
             ' Critical Multiplier: {} \n Status Chance: {},'
             '  Ammo Capacity: {}, Reload Time: {} \n'
-            .format(self.weapon.name, self.name,
+            .format(self.weapon_name, self.name,
                     [modslot.polarity for modslot in self.modslot_list],
                     [mod.name for mod in self.mod_list],
                     self.calculate_mod_cost(),

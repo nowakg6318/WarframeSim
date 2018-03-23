@@ -66,7 +66,7 @@ def non_damage_mod_calc(loadout: mods.loadout) -> None:
     import copy
 
     relevant_mod_list = get_relevant_mod_list(loadout, 0)
-    loadout_array = copy.deepcopy(loadout.weapon.weapon_array)
+    loadout_array = copy.deepcopy(loadout.weapon_array)
     mod_array = numpy.ones(20)
     for mod in relevant_mod_list:
         mod_array = numpy.add(mod_array, mod.get_modarray())
@@ -126,7 +126,7 @@ def second_elemental_mod_calc(loadout: mods.loadout) -> None:
     relevant_mod_list = get_relevant_mod_list(loadout, 2)
 
     # Account for any innate elemental damage in the weapon.
-    innate_damage_indices = numpy.nonzero(loadout.weapon.weapon_array[3:7])[0]  # noqa
+    innate_damage_indices = numpy.nonzero(loadout.weapon_array[3:7])[0]  # noqa
     print(innate_damage_indices)
     if any(innate_damage_indices):
         for index in innate_damage_indices:

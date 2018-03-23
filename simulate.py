@@ -21,7 +21,7 @@ class Simulation():
         rep_string = ('Weapon: {} '
                       'loadout: {} \n'
                       'Target: Level {} {} \n'
-                      .format(self.loadout.weapon.name, self.loadout.name,
+                      .format(self.loadout.weapon_name, self.loadout.name,
                               self.target.level, self.target.name))
 
         for column in self.array:
