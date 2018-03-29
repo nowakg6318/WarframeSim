@@ -34,26 +34,26 @@ class Enemy:
         self.shield = Health(self.shield_base, self.min_level,
                              self.level, self.shield_species)
 
+    def restore(self):
+        self.health.current_pp = self.health.pp_max_calc()
+        self.armor.current_pp = self.armor.pp_max_calc()
+        self.shield.current_pp = self.shield.pp_max_calc()
+
 
 class PhysicalParameter:
     ''' A base class that represents a 'physical parameter' such as
     health or shields.  It should not be instantiated on its'own.
     '''
 
-    def __init__(self, basephysicalparameter=None, baselevel=None,
-                 currentlevel=None, species=None):
+    type_dict = {'None': numpy.zeros(13)}
 
-        if not basephysicalparameter:
-            self.current_pp = 0
-            self.array = numpy.zeros(13)
-            self.species = None
-            return None
+    def __init__(self, basephysicalparameter, baselevel,
+                 currentlevel, species):
 
         self.basephysicalparameter = basephysicalparameter
         self.baselevel = baselevel
         self.currentlevel = currentlevel
         self.species = species
-        self.array = numpy.array(self.type_dict[self.species])
         self.current_pp = self.pp_max_calc()
 
         # Check to see if species is in type dictionary as it
@@ -69,8 +69,6 @@ class PhysicalParameter:
             return(self.basephysicalparameter *
                    (1 + self.constant1 * (self.currentlevel - self.baselevel)
                     ** self.constant2))
-        else:
-            return(0)
 
     def __iadd__(self, other):
         self.current_pp += other
@@ -108,7 +106,7 @@ class PhysicalParameter:
 class Health(PhysicalParameter):
     constant1 = 0.015
     constant2 = 2
-    type_dict = ({
+    type_dict = ({**PhysicalParameter.type_dict, **{ # noqa
         'cloned flesh': [-0.25, 0, 0.25, 0, 0, 0.25, 0, 0,
                          0, -0.5, 0, 0, 0.75],
         'machinery': [0.25, 0, 0, 0, 0.5, 0, -0.25, 0.75, 0,
@@ -124,7 +122,7 @@ class Health(PhysicalParameter):
         'fossilized': [0, 0, 0.15, -0.25, 0, 0, -0.5, 0.5,
                        0.75, 0, 0, -0.75, 0],
         'infested sinew': [0, 0.25, 0, 0.25, 0, 0, 0, -0.5,
-                           0, 0, 0, 0.5, 0]})
+                           0, 0, 0, 0.5, 0]}})
 
 
 class Shield(PhysicalParameter):
@@ -134,11 +132,11 @@ class Shield(PhysicalParameter):
 
     constant1 = 0.0075
     constant2 = 2
-    type_dict = (
-        {'shield': [0.5, -0.2, 0, 0.5, 0, 0, 0, 0,
-                    0, 0, 0.75, -0.25, 0],
-         'proto shield': [0.15, -0.5, 0, 0, 0, -0.5, 0.25,
-                          0, -0.5, 0, 0.75, 0, 0]})
+    type_dict = ({**PhysicalParameter.type_dict, **{
+        'shield': [0.5, -0.2, 0, 0.5, 0, 0, 0, 0,
+                   0, 0, 0.75, -0.25, 0],
+        'proto shield': [0.15, -0.5, 0, 0, 0, -0.5, 0.25,
+                         0, -0.5, 0, 0.75, 0, 0]}})
 
 
 class Armor(PhysicalParameter):
@@ -148,9 +146,8 @@ class Armor(PhysicalParameter):
 
     constant1 = 0.005
     constant2 = 1.75
-    type_dict = (
-        {'ferrite': ([0, 0.5, -0.15, 0, 0, 0,
-                      0.25, -0.25, 0.75, 0, 0, 0, 0]),
-         'alloy': [0, 0.15, -0.5, 0.25, -0.5,
-                   0, 0, 0, 0, 0, -0.5, 0.75, 0]})
-
+    type_dict = ({**PhysicalParameter.type_dict, **{
+        'ferrite': ([0, 0.5, -0.15, 0, 0, 0,
+                     0.25, -0.25, 0.75, 0, 0, 0, 0]),
+        'alloy': [0, 0.15, -0.5, 0.25, -0.5,
+                  0, 0, 0, 0, 0, -0.5, 0.75, 0]}})
