@@ -31,7 +31,7 @@ class Enemy:
         self.armor = Armor(self.armor_base, self.min_level,
                            self.level, self.armor_species)
 
-        self.shield = Health(self.shield_base, self.min_level,
+        self.shield = Shield(self.shield_base, self.min_level,
                              self.level, self.shield_species)
 
     def restore(self):
@@ -45,7 +45,7 @@ class PhysicalParameter:
     health or shields.  It should not be instantiated on its'own.
     '''
 
-    type_dict = {'None': numpy.zeros(13)}
+    type_dict = {None: [0] * 13}
 
     def __init__(self, basephysicalparameter, baselevel,
                  currentlevel, species):
@@ -65,10 +65,9 @@ class PhysicalParameter:
         self.array = numpy.array(self.type_dict[species])
 
     def pp_max_calc(self):
-        if self.species:
-            return(self.basephysicalparameter *
-                   (1 + self.constant1 * (self.currentlevel - self.baselevel)
-                    ** self.constant2))
+        return(self.basephysicalparameter *
+               (1 + self.constant1 * (self.currentlevel - self.baselevel)
+                ** self.constant2))
 
     def __iadd__(self, other):
         self.current_pp += other
@@ -147,7 +146,7 @@ class Armor(PhysicalParameter):
     constant1 = 0.005
     constant2 = 1.75
     type_dict = ({**PhysicalParameter.type_dict, **{
-        'ferrite': ([0, 0.5, -0.15, 0, 0, 0,
-                     0.25, -0.25, 0.75, 0, 0, 0, 0]),
+        'ferrite': [0, 0.5, -0.15, 0, 0, 0,
+                    0.25, -0.25, 0.75, 0, 0, 0, 0],
         'alloy': [0, 0.15, -0.5, 0.25, -0.5,
                   0, 0, 0, 0, 0, -0.5, 0.75, 0]}})

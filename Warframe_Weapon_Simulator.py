@@ -14,11 +14,9 @@ import plotter
 # Main Function
 if __name__ == "__main__":
     # Play around
-    loadout1 = loadout('loadout1', 'Synapse')
-    loadout1.add_mod(mod('Infected Clip', 4))
-    loadout2 = loadout('loadout2', 'Synapse')
-    loadout2.add_mod(mod('Infected Clip', 4), mod('Serration', 5))
-    grineer = enemies.Enemy('Grineer Lancer', 15)
-    simulation_list = simulate.Simulator(simulate.Simulation(loadout1, grineer),
-                                         simulate.Simulation(loadout2, grineer))
-    #plotter.Plotter(simulation_list, y_units='damage')
+    loadout1 = loadout('Viral', 'Soma')
+    loadout1.add_mod(mod('Serration', 10), mod('Infected Clip', 2), mod('Cryo Rounds', 2))
+    grineer = enemies.Enemy('Elite Crewman', 25)
+    simulation = simulate.Simulation(loadout1, grineer)
+    simulation.Simulate()
+    plotter.Plotter([simulation])

@@ -1,14 +1,14 @@
 ''' A module to simulate the damage of a warframe weapon against an
 enemy.
 '''
-
 # Imports
 import numpy
 import random
+from math import floor
 
 import mods
 import enemies
-import mod_calculations as modcalc
+from mod_calculations import calculate_mod_effects
 
 
 class Simulation():
@@ -16,6 +16,8 @@ class Simulation():
         self.loadout = loadout
         self.target = target
         self.array = []
+        self.UpdateShieldDamageArray()
+        self.UpdateHealthDamageArray()
 
     def __str__(self):
         rep_string = ('Weapon: {} '
@@ -32,187 +34,129 @@ class Simulation():
                                   column[2], sum(column[5:])))
         return(rep_string)
 
+    def UpdateShieldDamageArray(self):
+        array = numpy.multiply(self.loadout.loadout_array[:13],
+                               self.target.shield.array + 1)
 
-def Simulator(*args: Simulation):
-    '''Takes several EventLists and runs the simulate function on
-    each of them.
-    '''
+        # Get rid of toxin damage, as it doesn't effect shields.
+        array[6] = 0
+        self.shield_damage_array = array
 
-    return([Simulate(arg) for arg in args])
-
-
-def Simulate(simulation: Simulation):
-    '''Calculates and fills an event list with the damage done to the
-    target.
-
-    * Look into nonlocal variables.
-    '''
-
-    # Definitions
-    bullet_count = 0
-    time = 0
-
-    # Main Function
-    modcalc.calculate_effective_damage_array(simulation.loadout,
-                                             simulation.target)
-    print(simulation.loadout)
-    if simulation.target.shield > 0:
-        bullet_count, time = AttackShields(bullet_count, time, simulation)
-
-    AttackHealth(bullet_count, time, simulation)
-    simulation.array = numpy.array(simulation.array)
-    simulation.target.health.current_pp = simulation.target.health.pp_max_calc()
-    simulation.target.shield.current_pp = simulation.target.shield.pp_max_calc()
-    simulation.target.armor.current_pp = simulation.target.armor.pp_max_calc()
-
-    print(simulation)
-    return(simulation)
-
-
-def AttackShields(bullet_count: int, time: float, simulation: Simulation):
-    '''Calculates and fills an event list with the damage done to the
-    target, until the targets shields OR health are depleted.
-
-
-    LOOOK HERE IF THERE ARE ANY MATHEMTICAL MISTAKES WHEN TESTING!
-    '''
-
-    # Definitions to  be constant through the execution of shields.
-    loadout = simulation.loadout
-    target = simulation.target
-
-    while target.health > 0 and target.shield > 0:
-        # More Definitions
-        toxin_damage_modifer = (
-            ((target.health.array[6] + 1) * (target.armor.array[6] + 1))
-            / (1 + (target.armor.current_pp
-                    * (1 - target.armor.array[6]) / 300)))
-
-        toxin_damage = loadout.loadout_array[6]
-        shield_damage_array = numpy.multiply(loadout.loadout_array[:13],
-                                             target.shield.array + 1)
-
-        # Get rid of toxin damage
-        shield_damage_array[6] = 0
-
-        # Fire a bullet, increase time, and increase bullet number
-        bullet_count += 1
-        loadout.ammo -= 1
-        time = (bullet_count - 1) * (1 / (loadout.fire_rate))
-
-        # Various random effects
-        crit_roll = random.random()
-        multishot_roll = random.random()
-        status_roll = random.random()
-
-        # Damage Modifiers from random effects
-        critical_bool = 1 if crit_roll < loadout.critical_chance else 0
-
-        # Deal damage to health and shields
-        shield_damage = (sum(shield_damage_array) *
-                         loadout.critical_multipler ** critical_bool)
-
-        health_damage = (toxin_damage * toxin_damage_modifer *
-                         loadout.critical_multipler ** critical_bool)
-
-        # If the damage done to the shields is less than the health of
-        # the shields, then deal the damage and move along.
-        if shield_damage <= target.shield:
-            target.shield -= shield_damage
-            target.health -= health_damage
-            damage_array = shield_damage_array
-            damage_array[6] = health_damage
-
-        # If the damage done to the shields is greater than the health
-        # of the shields, then deal damage to break the shields and deal
-        # the rest of the damage to the target's health.
-        else:
-            percent_damage_done = target.shield / shield_damage
-            health_damage_array = numpy.multiply(loadout.loadout_array[:13],
-                                                 target.health.array + 1)
-            target.shield.current_pp = 0
-            target.health -= (sum(health_damage_array)
-                              * (1 - percent_damage_done)
-                              * loadout.critical_multipler ** critical_bool)
-
-            damage_array = ((percent_damage_done * shield_damage_array
-                             + (1 - percent_damage_done) * health_damage_array)
-                            * loadout.critical_multipler ** critical_bool)
-
-        # Append the event to the simulation list
-        damage_sum = sum(damage_array)
-        total_damage = (damage_sum
-                        + sum([column[3] for column in simulation.array]))
-
-        simulation.array.append([bullet_count, time, loadout.ammo,
-                                 damage_sum, total_damage]
-                                + list(damage_array))
-
-        # Reload if needed
-        if loadout.ammo == 0:
-            time = time + loadout.reload_time
-            loadout.ammo = loadout.ammo_capacity
-
-    # Return time and bullet_count
-    return bullet_count, time
-
-
-def AttackHealth(bullet_count: int, time: float, simulation: Simulation):
-    '''Calculates and fills an event list with the damage done to the
-    target, until the targets health is depleted.
-
-
-    LOOOK HERE IF THERE ARE ANY MATHEMTICAL MISTAKES WHEN TESTING!
-    '''
-
-    # Definitions
-    loadout = simulation.loadout
-    target = simulation.target
-
-    while target.health > 0:
-        # Definitions
+    def UpdateHealthDamageArray(self):
+        ### FIX THIS ARRAY ####
         health_modifier_array = [(
-            ((target.health.array[i] + 1) * (target.armor.array[i] + 1))
-            / (1 + (target.armor.current_pp
-                    * (1 - target.armor.array[i]) / 300)))
-
+            ((self.target.health.array[i] + 1)
+             * (self.target.armor.array[i] + 1))
+            / (1 + (self.target.armor.current_pp
+                    * (1 - self.target.armor.array[i]) / 300)))
             for i in range(13)]
 
-        damage_array = numpy.multiply(loadout.loadout_array[:13],
-                                      health_modifier_array)
+        health_damage_array = numpy.multiply(self.loadout.loadout_array[:13],
+                                             health_modifier_array)
 
-        # Fire a bullet, increase time, and increase bullet number
-        bullet_count += 1
-        loadout.ammo -= 1
-        time = (bullet_count - 1) * (1 / (loadout.fire_rate))
+        self.health_damage_array = health_damage_array
 
-        # Various random effects
-        crit_roll = random.random()
-        multishot_roll = random.random()
-        status_roll = random.random()
+    def Simulate(self):
+        '''Calculates and fills an event list with the damage done to the
+        target.
+        '''
+        calculate_mod_effects(self.loadout, self.target)
+        self.UpdateHealthDamageArray()
+        self.UpdateShieldDamageArray()
+        while self.target.health > 0:
+            self.ShootTarget()
+        self.EndSimulate()
+        return(self)
 
-        # Damage Modifiers from random effects
-        critical_bool = 1 if crit_roll < loadout.critical_chance else 0
+    def ShootTarget(self):
+        num_shots_fired = int(self.loadout.loadout_array[20]) + self.Roll(21)
+        for shot in range(num_shots_fired):
+            critical_bool = self.Roll(15)
+            impact_area = self.IdentifyImpactArea()
+            if isinstance(impact_area, enemies.Shield):
+                health_array, shield_array = self.AttackShields(critical_bool)
+            else:
+                health_array, shield_array = self.AttackHealth(critical_bool)
+            health_array, shield_array = self.DamageTarget(health_array,
+                                                           shield_array,
+                                                           critical_bool)
+            self.StoreData(health_array, shield_array)
 
-        # Deal damage to health
-        health_damage_array = (damage_array *
-                               loadout.critical_multipler ** critical_bool)
+    def Roll(self, index: int) -> float:
+        roll = random.random()
+        boolean = 1 if roll < self.loadout.loadout_array[index] else 0
+        return(boolean)
 
-        target.health -= sum(health_damage_array)
+    def IdentifyImpactArea(self):
+        if self.target.shield.current_pp:
+            return(self.target.shield)
+        else:
+            return(self.target.health)
 
-        # Store the data for this shot in the simulation array
-        damage_sum = sum(health_damage_array)
-        total_damage = (damage_sum
-                        + sum([column[3] for column in simulation.array]))
+    def EndSimulate(self):
+        self.array = numpy.array(self.array)
+        self.target.restore()
+        print(self)
 
-        simulation.array.append([bullet_count, time, loadout.ammo,
-                                 damage_sum, total_damage]
-                                + list(health_damage_array))
+    def AttackShields(self, critical_bool: bool):
+        shield_damage = (self.shield_damage_array
+                         * self.loadout.loadout_array[16] ** critical_bool)
 
-        # Reload if needed
-        if loadout.ammo == 0 and target.health > 0:
-            time += loadout.reload_time
-            loadout.ammo = loadout.ammo_capacity
+        toxin_damage = (self.health_damage_array[6]
+                        * self.loadout.loadout_array[16]
+                        ** critical_bool)
 
-    # Return time and bullet_count
-    return bullet_count, time
+        health_damage = numpy.concatenate((numpy.zeros(5),
+                                          numpy.array([toxin_damage]),
+                                          numpy.zeros(7)))
+
+        return(health_damage, shield_damage)
+
+    def AttackHealth(self, critical_bool: bool):
+        health_damage = (self.health_damage_array
+                         * self.loadout.loadout_array[16] ** critical_bool)
+
+        return(health_damage, numpy.zeros(13))
+
+    def DamageTarget(self, health_damage, shield_damage, critical_bool):
+        if not self.target.shield < sum(shield_damage):
+            # This case evaluates if the damage done to the shield
+            # is less than the health of the shield, or simply if
+            # the health of the target is damaged.
+            self.target.shield -= sum(shield_damage)
+            self.target.health -= sum(health_damage)
+            return(health_damage, shield_damage)
+        else:
+            # This case evaluates if the damage done to the targets
+            # shield is greater than the health of the shield.
+            percent_damage_done = self.target.shield / sum(shield_damage)
+            self.target.shield.current_pp = 0
+            health_damage = ((self.health_damage_array
+                             * (1 - percent_damage_done)
+                             * self.loadout.loadout_array[16]
+                             ** critical_bool)
+                             + health_damage)
+
+            self.target.health -= sum(health_damage)
+            return(health_damage, shield_damage * percent_damage_done)
+
+    def StoreData(self, health_damage, shield_damage):
+        bullet_count = len(self.array) + 1
+        time = (bullet_count
+                + floor(bullet_count / self.loadout.loadout_array[18])
+                * self.loadout.loadout_array[19])
+
+        ammo = (self.loadout.loadout_array[18]
+                - (bullet_count
+                    - (floor(bullet_count / self.loadout.loadout_array[18])
+                       * self.loadout.loadout_array[18])))
+
+        damage_sum = sum(health_damage) + sum(shield_damage)
+        if len(self.array):
+            total_damage = damage_sum + sum(self.array[len(self.array) - 1])
+        else:
+            total_damage = damage_sum
+        damage = numpy.add(health_damage, shield_damage)
+        self.array.append([bullet_count, time, ammo,
+                           damage_sum, total_damage]
+                          + list(damage))

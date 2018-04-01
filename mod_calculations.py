@@ -10,7 +10,7 @@ import mods
 import enemies
 
 
-def calculate_effective_damage_array(loadout: mods.loadout,
+def calculate_mod_effects(loadout: mods.loadout,
      target: enemies.Enemy, characteristic: Any=None) -> numpy.array: # noqa
     ''' A function to combine each of the individual steps in
     calculating the effective damage array of a warframe
@@ -34,6 +34,7 @@ def calculate_effective_damage_array(loadout: mods.loadout,
     physical_damage_mod_calc(loadout)
     critical_damage_mod_calc(loadout)
     faction_damage_mod_calc(loadout, target)
+    print(loadout)
 
 
 def get_relevant_mod_list(loadout: mods.loadout, priority: int) -> list:
@@ -67,7 +68,7 @@ def non_damage_mod_calc(loadout: mods.loadout) -> None:
 
     relevant_mod_list = get_relevant_mod_list(loadout, 0)
     loadout_array = copy.deepcopy(loadout.weapon_array)
-    mod_array = numpy.ones(20)
+    mod_array = numpy.ones(22)
     for mod in relevant_mod_list:
         mod_array = numpy.add(mod_array, mod.get_modarray())
     loadout_array[13:] = numpy.multiply(
@@ -82,7 +83,7 @@ def base_damage_mod_calc(loadout: mods.loadout) -> None:
 
     relevant_mod_list = get_relevant_mod_list(loadout, 1)
     loadout_array = loadout.loadout_array
-    mod_array = numpy.ones(20)
+    mod_array = numpy.ones(22)
     for mod in relevant_mod_list:
         mod_array = numpy.add(mod_array, mod.get_modarray())
     loadout_array[:13] = (numpy.multiply(
@@ -174,7 +175,7 @@ def physical_damage_mod_calc(loadout: mods.loadout) -> None:
 
     relevant_mod_list = get_relevant_mod_list(loadout, 4)
     loadout_array = loadout.loadout_array
-    mod_array = numpy.ones(20)
+    mod_array = numpy.ones(22)
     for mod in relevant_mod_list:
         mod_array = numpy.add(mod_array, mod.get_modarray())
     loadout_array[:3] = numpy.multiply(loadout_array[:3], mod_array[:3])
@@ -184,21 +185,30 @@ def physical_damage_mod_calc(loadout: mods.loadout) -> None:
 def multishot_damage_mod_calc(loadout: mods.loadout) -> None:
     pass
 
+    # Imports
+    from math import floor
+    num_bullets_fired = (loadout.loadout_array[20]
+                         + loadout.loadout_array[20]
+                         * loadout.loadout_array[21])
+
+    loadout.loadout_array[21] = num_bullets_fired - floor(num_bullets_fired)
+    loadout.loadout_array[20] = floor(num_bullets_fired)
+
 
 def critical_damage_mod_calc(loadout: mods.loadout) -> None:
     '''Calculates the critical damage and effective critical chance
     of the loadout.'''
 
     # Imports
-    import math
+    from math import floor
 
     real_critical_chance = (loadout.critical_chance
-                            - math.floor(loadout.critical_chance))
+                            - floor(loadout.critical_chance))
 
     loadout.loadout_array[15] = real_critical_chance
     loadout.loadout_array[:13] = (loadout.loadout_array[:13]
                                   * loadout.critical_multipler
-                                  ** math.floor(real_critical_chance))
+                                  ** floor(real_critical_chance))
 
 
 def faction_damage_mod_calc(loadout: mods.loadout,
@@ -207,7 +217,7 @@ def faction_damage_mod_calc(loadout: mods.loadout,
 
     relevant_mod_list = get_relevant_mod_list(loadout, 7)
     loadout_array = loadout.loadout_array
-    mod_array = numpy.ones(20)
+    mod_array = numpy.ones(22)
     for mod in relevant_mod_list:
         mod_array = numpy.add(mod_array,
                               mod.get_modarray(characteristic=target))

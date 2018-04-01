@@ -10,7 +10,7 @@ import simulate
 
 
 def Plotter(simulation_list: simulate.Simulation,
-            x_units='bullet', y_units='damage'):
+            x_units='bullet', y_units='total damage'):
     ''' Le plot.
     '''
 
@@ -42,9 +42,9 @@ def Plotter(simulation_list: simulate.Simulation,
         y_values = ([column[unit_dict[y_units][0]]
                      for column in simulation.array])
 
-        plt.scatter(x_values, y_values,
-                    c='C' + str(simulation_list.index(simulation)),
-                    label=LabelStringCreater(simulation_list, simulation))
+        plt.plot(x_values, y_values,
+                 c='C' + str(simulation_list.index(simulation)),
+                 label=LabelStringCreater(simulation_list, simulation))
 
         plt.xlabel(unit_dict[x_units][1])
         plt.ylabel(unit_dict[y_units][1])

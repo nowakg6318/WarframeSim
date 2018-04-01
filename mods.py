@@ -137,7 +137,7 @@ class loadout():
         datagrab = _dictionaries.PRIMARY_DICT[weapon_name]
         self.weapon_name = weapon_name
         self.weapon_mod_type = datagrab[1]
-        self.weapon_array = numpy.array(datagrab[2:22])
+        self.weapon_array = numpy.array(datagrab[2:24])
 
         self.points = 60
         self.loadout_array = self.weapon_array
@@ -148,10 +148,11 @@ class loadout():
         self.status_chance = self.loadout_array[17]
         self.ammo_capacity = self.loadout_array[18]
         self.reload_time = self.loadout_array[19]
-        self.ammo = self.ammo_capacity
+        self.pellets = self.loadout_array[20]
+        self.multishot_chance = self.loadout_array[21]
 
         self.modslot_list = [0] * 8
-        polarity_list = datagrab[22:]
+        polarity_list = datagrab[24:]
         for index in range(8):
             self.modslot_list[index] = mod_slot(polarity=polarity_list[index])
         del datagrab
