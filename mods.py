@@ -141,15 +141,6 @@ class loadout():
 
         self.points = 60
         self.loadout_array = self.weapon_array
-        self.accuracy = self.loadout_array[13]
-        self.fire_rate = self.loadout_array[14]
-        self.critical_chance = self.loadout_array[15]
-        self.critical_multipler = self.loadout_array[16]
-        self.status_chance = self.loadout_array[17]
-        self.ammo_capacity = self.loadout_array[18]
-        self.reload_time = self.loadout_array[19]
-        self.pellets = self.loadout_array[20]
-        self.multishot_chance = self.loadout_array[21]
 
         self.modslot_list = [0] * 8
         polarity_list = datagrab[24:]

@@ -26,7 +26,6 @@ def calculate_mod_effects(loadout: mods.loadout,
     6 - Critical Damage
     7 - Faction Damages
     8 - Punchthrough *** Currently Ignored '''
-
     non_damage_mod_calc(loadout)
     base_damage_mod_calc(loadout)
     first_elemental_mod_calc(loadout)
@@ -202,12 +201,12 @@ def critical_damage_mod_calc(loadout: mods.loadout) -> None:
     # Imports
     from math import floor
 
-    real_critical_chance = (loadout.critical_chance
-                            - floor(loadout.critical_chance))
+    real_critical_chance = (loadout.loadout_array[15]
+                            - floor(loadout.loadout_array[15]))
 
     loadout.loadout_array[15] = real_critical_chance
     loadout.loadout_array[:13] = (loadout.loadout_array[:13]
-                                  * loadout.critical_multipler
+                                  * loadout.loadout_array[16]
                                   ** floor(real_critical_chance))
 
 

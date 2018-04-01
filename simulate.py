@@ -43,13 +43,16 @@ class Simulation():
         self.shield_damage_array = array
 
     def UpdateHealthDamageArray(self):
-        ### FIX THIS ARRAY ####
-        health_modifier_array = [(
-            ((self.target.health.array[i] + 1)
-             * (self.target.armor.array[i] + 1))
-            / (1 + (self.target.armor.current_pp
-                    * (1 - self.target.armor.array[i]) / 300)))
-            for i in range(13)]
+        def HealthModifierCalc(target, index):
+            health_modifier = (((target.health.array[index] + 1)
+                               * (target.armor.array[index] + 1))
+                               / (1 + (target.armor.current_pp
+                                  * (1 - target.armor.array[index]) / 300)))
+
+            return(health_modifier)
+
+        health_modifier_array = numpy.array(
+            [HealthModifierCalc(self.target, i) for i in range(13)])
 
         health_damage_array = numpy.multiply(self.loadout.loadout_array[:13],
                                              health_modifier_array)
